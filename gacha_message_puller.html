@@ -1,0 +1,236 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body { font-family: var(--font-sans); }
+
+  .wrapper {
+    min-height: 520px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem;
+    gap: 1.5rem;
+  }
+
+  h2 { font-size: 22px; font-weight: 500; color: var(--color-text-primary); letter-spacing: -0.3px; }
+  .sub { font-size: 14px; color: var(--color-text-secondary); margin-top: 4px; }
+
+  .machine {
+    position: relative;
+    width: 220px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .machine svg { width: 100%; height: auto; display: block; }
+
+  .pull-btn {
+    margin-top: 1rem;
+    padding: 10px 32px;
+    font-size: 15px;
+    font-weight: 500;
+    border: 1.5px solid var(--color-border-secondary);
+    border-radius: var(--border-radius-lg);
+    background: var(--color-background-primary);
+    color: var(--color-text-primary);
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .pull-btn:hover { background: var(--color-background-secondary); }
+  .pull-btn:active { transform: scale(0.97); }
+  .pull-btn:disabled { opacity: 0.4; cursor: default; }
+
+  .capsule-out {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  .capsule-out.show { display: flex; }
+
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.5) translateY(30px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .capsule-ball {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    animation: spin 0.5s ease-out;
+  }
+  @keyframes spin {
+    from { transform: rotate(-180deg) scale(0); }
+    to   { transform: rotate(0deg) scale(1); }
+  }
+
+  .message-card {
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg);
+    padding: 1.25rem 1.5rem;
+    max-width: 360px;
+    width: 100%;
+    text-align: center;
+  }
+  .msg-label { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
+  .msg-text { font-size: 17px; color: var(--color-text-primary); line-height: 1.6; }
+  .msg-from { font-size: 13px; color: var(--color-text-secondary); margin-top: 10px; }
+
+  .again-btn {
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 4px 8px;
+  }
+  .again-btn:hover { color: var(--color-text-primary); }
+
+  .shake { animation: shake 0.4s ease; }
+  @keyframes shake {
+    0%,100% { transform: rotate(0deg); }
+    20% { transform: rotate(-8deg); }
+    40% { transform: rotate(8deg); }
+    60% { transform: rotate(-5deg); }
+    80% { transform: rotate(5deg); }
+  }
+
+  .bounceKnob { animation: bounceKnob 0.3s ease-out; }
+  @keyframes bounceKnob {
+    0% { transform: translateY(0); }
+    40% { transform: translateY(6px); }
+    100% { transform: translateY(0); }
+  }
+</style>
+
+<div class="wrapper">
+  <div style="text-align:center">
+    <h2>Gacha Message</h2>
+    <p class="sub">Pull a capsule, discover a secret message</p>
+  </div>
+
+  <div class="machine" id="machine" onclick="doPull()">
+    <svg viewBox="0 0 220 260" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="ballGrad" cx="38%" cy="35%">
+          <stop offset="0%" stop-color="#fff" stop-opacity="0.45"/>
+          <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+
+      <!-- body -->
+      <rect x="30" y="100" width="160" height="120" rx="14" fill="#7F77DD"/>
+      <!-- dome -->
+      <ellipse cx="110" cy="100" rx="72" ry="72" fill="#AFA9EC"/>
+      <!-- dome shine -->
+      <ellipse cx="88" cy="72" rx="28" ry="20" fill="white" opacity="0.18"/>
+      <!-- capsules inside dome -->
+      <circle cx="90" cy="98" r="14" fill="#F0997B" opacity="0.9"/>
+      <circle cx="115" cy="82" r="12" fill="#5DCAA5" opacity="0.9"/>
+      <circle cx="138" cy="102" r="11" fill="#F4C0D1" opacity="0.9"/>
+      <circle cx="80" cy="118" r="10" fill="#FAC775" opacity="0.9"/>
+      <circle cx="126" cy="118" r="9" fill="#85B7EB" opacity="0.9"/>
+
+      <!-- slot -->
+      <rect x="76" y="182" width="68" height="20" rx="6" fill="#3C3489"/>
+      <!-- slot opening -->
+      <rect x="84" y="188" width="52" height="8" rx="4" fill="#26215C"/>
+
+      <!-- knob -->
+      <circle id="knob" cx="176" cy="160" r="16" fill="#F0997B"/>
+      <circle cx="176" cy="160" r="8" fill="#D85A30"/>
+
+      <!-- label -->
+      <rect x="54" y="214" width="112" height="28" rx="6" fill="#3C3489"/>
+      <text x="110" y="233" text-anchor="middle" font-family="sans-serif" font-size="12" font-weight="500" fill="#CEEBF6">
+        GACHA MESSAGE
+      </text>
+    </svg>
+  </div>
+
+  <button class="pull-btn" id="pullBtn" onclick="doPull()">Pull!</button>
+
+  <div class="capsule-out" id="capsuleOut">
+    <div class="capsule-ball" id="capsuleBall" style="background:#AFA9EC"></div>
+    <div class="message-card">
+      <div class="msg-label">Your message</div>
+      <div class="msg-text" id="msgText"></div>
+      <div class="msg-from" id="msgFrom"></div>
+    </div>
+    <button class="again-btn" onclick="reset()">Pull again</button>
+  </div>
+</div>
+
+<script>
+const MESSAGES = [
+  { emoji: "🌸", color: "#F4C0D1", bg: "#FBEAF0", text: "You are doing better than you think. Keep going.", from: "" },
+  { emoji: "⭐", color: "#FAC775", bg: "#FAEEDA", text: "Something wonderful is about to happen to you.", from: "" },
+  { emoji: "🌊", color: "#85B7EB", bg: "#E6F1FB", text: "You have survived every hard day so far. That's 100%.", from: "" },
+  { emoji: "🌿", color: "#5DCAA5", bg: "#E1F5EE", text: "Rest is not giving up. It's refueling.", from: "" },
+  { emoji: "🔮", color: "#AFA9EC", bg: "#EEEDFE", text: "Your weird quirks are someone's favorite thing about you.", from: "" },
+  { emoji: "🍊", color: "#F0997B", bg: "#FAECE7", text: "You bring warmth to every room you enter.", from: "" },
+  { emoji: "💙", color: "#378ADD", bg: "#E6F1FB", text: "It's okay to not have it all figured out.", from: "" },
+  { emoji: "🌻", color: "#EF9F27", bg: "#FAEEDA", text: "Small steps still move you forward.", from: "" },
+  { emoji: "🍀", color: "#639922", bg: "#EAF3DE", text: "Today is a good day to try something new.", from: "" },
+  { emoji: "🎀", color: "#D4537E", bg: "#FBEAF0", text: "You matter more than you know.", from: "" },
+  { emoji: "💫", color: "#7F77DD", bg: "#EEEDFE", text: "The best part of your story is still unwritten.", from: "" },
+  { emoji: "🌙", color: "#534AB7", bg: "#EEEDFE", text: "Even the moon has its dark phases. You're still glowing.", from: "" },
+];
+
+let pulling = false;
+
+function doPull() {
+  if (pulling) return;
+  pulling = true;
+
+  const btn = document.getElementById('pullBtn');
+  const machine = document.getElementById('machine');
+  const knob = document.getElementById('knob');
+  btn.disabled = true;
+  machine.classList.add('shake');
+  knob.classList.add('bounceKnob');
+
+  setTimeout(() => {
+    machine.classList.remove('shake');
+    knob.classList.remove('bounceKnob');
+    showCapsule();
+  }, 500);
+}
+
+function showCapsule() {
+  const msg = MESSAGES[Math.floor(Math.random() * MESSAGES.length)];
+  const ball = document.getElementById('capsuleBall');
+  const out = document.getElementById('capsuleOut');
+  const msgText = document.getElementById('msgText');
+  const msgFrom = document.getElementById('msgFrom');
+
+  ball.style.background = msg.bg;
+  ball.style.border = '3px solid ' + msg.color;
+  ball.textContent = msg.emoji;
+
+  msgText.textContent = msg.text;
+  msgFrom.textContent = msg.from ? '— ' + msg.from : '';
+
+  out.classList.remove('show');
+  void out.offsetWidth;
+  out.classList.add('show');
+  document.getElementById('machine').style.display = 'none';
+  document.getElementById('pullBtn').style.display = 'none';
+}
+
+function reset() {
+  pulling = false;
+  document.getElementById('capsuleOut').classList.remove('show');
+  document.getElementById('machine').style.display = '';
+  document.getElementById('pullBtn').style.display = '';
+  document.getElementById('pullBtn').disabled = false;
+}
+</script>
